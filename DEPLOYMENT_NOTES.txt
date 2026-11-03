@@ -1,0 +1,24 @@
+Sanskrit Translator deployment notes
+
+Project structure:
+- sanskrit_Translator/frontend: static HTML/CSS/JS frontend
+- sanskrit_Translator/backend: Python FastAPI backend
+
+Important:
+1. The frontend currently defaults to http://127.0.0.1:8000 for local testing.
+2. After deploying the backend, edit frontend/script.js and replace the fallback URL with your Render backend URL, e.g.
+   const API_BASE_URL = (window.SANSKRIT_API_BASE_URL || "https://YOUR-SERVICE.onrender.com").replace(/\/$/, "");
+3. Update backend/main.py CORS allow_origins to include the final frontend URL before deploying/redeploying the backend.
+4. The model download and PyTorch requirements are large. Free hosts may run out of build time or memory. A successful deploy is not guaranteed on free tier.
+5. Image/scanned PDF OCR requires Tesseract plus Sanskrit (san) language data installed on the backend host; this ZIP does not install system packages.
+6. Do not upload venv/ or cached model weights to GitHub.
+
+Suggested deployment order:
+A. Push this folder to a GitHub repository.
+B. Deploy backend on Render using the root directory sanskrit_Translator/backend, build command:
+   pip install -r requirements.txt
+   start command:
+   uvicorn main:app --host 0.0.0.0 --port $PORT
+C. Test https://YOUR-SERVICE.onrender.com/health
+D. Update frontend/script.js with the backend URL and add the frontend domain to CORS in backend/main.py.
+E. Deploy the contents of sanskrit_Translator/frontend to Netlify or another static host.
